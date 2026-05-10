@@ -20,6 +20,8 @@ class Order extends Model
         'paid_at', 'shipped_at', 'delivered_at', 'cancelled_at',
     ];
 
+    protected $appends = ['status_badge'];
+    
     protected $casts = [
         'subtotal' => 'decimal:2',
         'tax' => 'decimal:2',

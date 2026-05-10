@@ -1,43 +1,48 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
-import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
+import MainLayout from '@/Layouts/MainLayout';
+import { Head, usePage } from '@inertiajs/react';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import UpdatePasswordForm from './Partials/UpdatePasswordForm';
+import DeleteUserForm from './Partials/DeleteUserForm';
 
-export default function Edit({
-    mustVerifyEmail,
-    status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+interface Props {
+    mustVerifyEmail: boolean;
+    status?: string;
+    cartCount?: number;
+}
+
+export default function Edit({ mustVerifyEmail, status, cartCount = 0 }: Props) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
+        <MainLayout cartCount={cartCount}>
+            <Head title="Meu Perfil" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                <div className="mx-auto max-w-3xl px-4 space-y-6">
+                    <div>
+                        <h1 className="text-2xl font-bold">Meu Perfil</h1>
+                        <p className="text-muted-foreground text-sm mt-1">
+                            Gerencie suas informações pessoais e segurança da conta
+                        </p>
+                    </div>
+
+                    {/* Informações pessoais */}
+                    <div className="bg-card border rounded-xl p-6 shadow-sm">
                         <UpdateProfileInformationForm
                             mustVerifyEmail={mustVerifyEmail}
                             status={status}
-                            className="max-w-xl"
                         />
                     </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
+                    {/* Senha */}
+                    <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <UpdatePasswordForm />
                     </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
+                    {/* Deletar conta */}
+                    <div className="bg-card border rounded-xl p-6 shadow-sm border-destructive/30">
+                        <DeleteUserForm />
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </MainLayout>
     );
 }

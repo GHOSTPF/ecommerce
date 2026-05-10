@@ -27,6 +27,13 @@ class Product extends Model
         'attributes' => 'array',
     ];
 
+    protected $appends = [
+        'current_price',
+        'is_on_sale',
+        'average_rating',
+        'in_stock',
+    ];
+    
     public function category(): BelongsTo { return $this->belongsTo(Category::class); }
     public function images(): HasMany { return $this->hasMany(ProductImage::class)->orderBy('sort_order'); }
     public function primaryImage() { return $this->hasOne(ProductImage::class)->where('is_primary', true); }

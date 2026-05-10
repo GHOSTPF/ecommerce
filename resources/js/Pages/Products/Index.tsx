@@ -12,10 +12,47 @@ import { Separator } from '@/Components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/Components/ui/sheet';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+
+interface Product {
+    id: number;
+    name: string;
+    slug: string;
+    price: number;
+    sale_price?: number;
+    is_on_sale: boolean;
+    current_price: number;
+    in_stock: boolean;
+    average_rating: number;
+    images: { image_path: string; is_primary: boolean }[];
+    category?: { name: string; slug: string };
+}
+
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    products_count: number;
+}
+
+interface PaginatedProducts {
+    data: Product[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+    from: number;
+    to: number;
+}
 
 interface Props {
-    products: { data: any[]; links: any[]; meta: any };
-    categories: any[];
+    products: PaginatedProducts;
+    categories: Category[];
     brands: string[];
     priceRange: { min: number; max: number };
     cartCount?: number;
@@ -49,9 +86,13 @@ export default function ProductsIndex({ products, categories, brands, priceRange
     };
 
     const clearFilters = () => {
-        setSearch(''); setSelectedCategory(''); setSelectedBrand('');
+        setSearch('');
+        setSelectedCategory('');
+        setSelectedBrand('');
         setPriceVal([priceRange.min, priceRange.max]);
-        setOnSale(false); setInStock(false); setSort('newest');
+        setOnSale(false);
+        setInStock(false);
+        setSort('newest');
         router.get('/produtos');
     };
 
@@ -64,7 +105,9 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                 <div className="space-y-1.5">
                     <button
                         onClick={() => setSelectedCategory('')}
-                        className={`w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors ${!selectedCategory ? 'bg-primary/10 text-primary font-medium' : ''}`}
+                        className={`w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors ${
+                            !selectedCategory ? 'bg-primary/10 text-primary font-medium' : ''
+                        }`}
                     >
                         Todas as Categorias
                     </button>
@@ -72,7 +115,9 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                         <button
                             key={cat.id}
                             onClick={() => setSelectedCategory(cat.slug)}
-                            className={`w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors flex justify-between ${selectedCategory === cat.slug ? 'bg-primary/10 text-primary font-medium' : ''}`}
+                            className={`w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors flex justify-between ${
+                                selectedCategory === cat.slug ? 'bg-primary/10 text-primary font-medium' : ''
+                            }`}
                         >
                             <span>{cat.name}</span>
                             <span className="text-muted-foreground text-xs">{cat.products_count}</span>
@@ -85,8 +130,9 @@ export default function ProductsIndex({ products, categories, brands, priceRange
 
             <div>
                 <Label className="text-sm font-semibold mb-3 block">
-                    Preço: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(priceVal[0])}
-                    {' - '}
+                    Preço:{' '}
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(priceVal[0])}
+                    {' — '}
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(priceVal[1])}
                 </Label>
                 <Slider
@@ -94,9 +140,7 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                     max={priceRange.max}
                     step={10}
                     value={priceVal}
-                    onValueChange={(value) => {
-                        setPriceVal(Array.isArray(value) ? [...value] : [value]);
-                    }}
+                    onValueChange={(value) => setPriceVal(Array.isArray(value) ? [...value] : [value])}
                     className="my-2"
                 />
             </div>
@@ -105,7 +149,10 @@ export default function ProductsIndex({ products, categories, brands, priceRange
 
             <div className="space-y-2">
                 <Label className="text-sm font-semibold block">Marca</Label>
-                <Select value={selectedBrand} onValueChange={(value) => setSelectedBrand(value ?? '')}>
+                <Select
+                    value={selectedBrand}
+                    onValueChange={(value) => setSelectedBrand(value ?? '')}
+                >
                     <SelectTrigger>
                         <SelectValue placeholder="Todas as marcas" />
                     </SelectTrigger>
@@ -123,16 +170,31 @@ export default function ProductsIndex({ products, categories, brands, priceRange
             <div className="space-y-3">
                 <Label className="text-sm font-semibold block">Filtros</Label>
                 <div className="flex items-center gap-2">
-                    <Checkbox id="on_sale" checked={onSale} onCheckedChange={v => setOnSale(!!v)} />
-                    <label htmlFor="on_sale" className="text-sm cursor-pointer">Em Promoção</label>
+                    <Checkbox
+                        id="on_sale"
+                        checked={onSale}
+                        onCheckedChange={v => setOnSale(!!v)}
+                    />
+                    <label htmlFor="on_sale" className="text-sm cursor-pointer">
+                        Em Promoção
+                    </label>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Checkbox id="in_stock" checked={inStock} onCheckedChange={v => setInStock(!!v)} />
-                    <label htmlFor="in_stock" className="text-sm cursor-pointer">Em Estoque</label>
+                    <Checkbox
+                        id="in_stock"
+                        checked={inStock}
+                        onCheckedChange={v => setInStock(!!v)}
+                    />
+                    <label htmlFor="in_stock" className="text-sm cursor-pointer">
+                        Em Estoque
+                    </label>
                 </div>
             </div>
 
-            <Button onClick={applyFilters} className="w-full">Aplicar Filtros</Button>
+            <Button onClick={applyFilters} className="w-full">
+                Aplicar Filtros
+            </Button>
+
             {hasFilters && (
                 <Button variant="outline" onClick={clearFilters} className="w-full">
                     <X className="h-4 w-4 mr-2" /> Limpar Filtros
@@ -142,28 +204,39 @@ export default function ProductsIndex({ products, categories, brands, priceRange
     );
 
     return (
+        <>
+        <Head title='Produtos' />
         <MainLayout cartCount={cartCount}>
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
                     <div>
                         <h1 className="text-2xl font-bold">Produtos</h1>
-                        <p className="text-muted-foreground text-sm">{products.meta?.total ?? 0} produtos encontrados</p>
+                        {/* ✅ Usa diretamente products.total — vem do paginator do Laravel */}
+                        <p className="text-muted-foreground text-sm">
+                            {products.total} produto(s) encontrado(s)
+                        </p>
                     </div>
+
                     <div className="flex items-center gap-3">
                         {hasFilters && (
-                            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={clearFilters}>
+                            <Badge
+                                variant="secondary"
+                                className="gap-1 cursor-pointer"
+                                onClick={clearFilters}
+                            >
                                 Limpar filtros <X className="h-3 w-3" />
                             </Badge>
                         )}
+
                         <Select
                             value={sort}
                             onValueChange={(v) => {
-                                const value = v ?? '';
+                                const value = v ?? 'newest';
                                 setSort(value);
                                 router.get('/produtos', {
                                     ...Object.fromEntries(params),
-                                    sort: value
+                                    sort: value,
                                 });
                             }}
                         >
@@ -180,9 +253,9 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                             </SelectContent>
                         </Select>
 
-                        {/* Mobile filter trigger */}
+                        {/* Filtros mobile */}
                         <Sheet>
-                            <SheetTrigger>
+                            <SheetTrigger >
                                 <Button variant="outline" size="sm" className="md:hidden">
                                     <SlidersHorizontal className="h-4 w-4 mr-2" /> Filtros
                                 </Button>
@@ -200,14 +273,14 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                 </div>
 
                 <div className="flex gap-8">
-                    {/* Sidebar - desktop */}
+                    {/* Sidebar desktop */}
                     <aside className="hidden md:block w-64 shrink-0">
                         <div className="sticky top-24">
                             <FilterPanel />
                         </div>
                     </aside>
 
-                    {/* Products Grid */}
+                    {/* Grid de produtos */}
                     <div className="flex-1">
                         {products.data.length > 0 ? (
                             <>
@@ -217,10 +290,10 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                                     ))}
                                 </div>
 
-                                {/* Pagination */}
-                                {products.meta?.last_page > 1 && (
+                                {/* ✅ Paginação usando products.last_page diretamente */}
+                                {products.last_page > 1 && (
                                     <div className="flex justify-center gap-2 mt-8 flex-wrap">
-                                        {products.links.map((link: any, i: number) => (
+                                        {products.links.map((link, i) => (
                                             <Button
                                                 key={i}
                                                 variant={link.active ? 'default' : 'outline'}
@@ -236,8 +309,12 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                         ) : (
                             <div className="text-center py-20">
                                 <p className="text-4xl mb-4">🔍</p>
-                                <h3 className="text-lg font-semibold mb-2">Nenhum produto encontrado</h3>
-                                <p className="text-muted-foreground mb-6">Tente ajustar os filtros ou buscar por outro termo.</p>
+                                <h3 className="text-lg font-semibold mb-2">
+                                    Nenhum produto encontrado
+                                </h3>
+                                <p className="text-muted-foreground mb-6">
+                                    Tente ajustar os filtros ou buscar por outro termo.
+                                </p>
                                 <Button onClick={clearFilters}>Limpar Filtros</Button>
                             </div>
                         )}
@@ -245,5 +322,6 @@ export default function ProductsIndex({ products, categories, brands, priceRange
                 </div>
             </div>
         </MainLayout>
+    </>
     );
 }

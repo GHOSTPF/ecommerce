@@ -8,14 +8,15 @@ class Cart extends Model
 {
     protected $fillable = ['user_id', 'session_id', 'coupon_code', 'discount_amount'];
     protected $casts = ['discount_amount' => 'decimal:2'];
-
+    protected $appends = ['subtotal', 'total', 'item_count'];
+    
     public function items(): HasMany { return $this->hasMany(CartItem::class); }
 
     public function getSubtotalAttribute(): float
     {
         return $this->items->sum(fn($item) => $item->price * $item->quantity);
     }
-
+    
     public function getTotalAttribute(): float
     {
         return max(0, $this->subtotal - $this->discount_amount);

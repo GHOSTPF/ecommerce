@@ -5,11 +5,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
 {
-    protected $fillable = ['code', 'description', 'discount_type', 'discount_value', 'expires_at', 'is_active'];
-    protected $casts = [
-        'expires_at' => 'datetime',
-        'is_active' => 'boolean',
+    protected $fillable = [
+        'code', 'type', 'value', 'minimum_amount',
+        'maximum_discount', 'usage_limit', 'used_count',
+        'is_active', 'starts_at', 'expires_at',
     ];
 
-    public function orders() { return $this->hasMany(Order::class); }
+    protected $casts = [
+        'value'           => 'decimal:2',
+        'minimum_amount'  => 'decimal:2',
+        'maximum_discount'=> 'decimal:2',
+        'is_active'       => 'boolean',
+        'starts_at'       => 'datetime',
+        'expires_at'      => 'datetime',
+    ];
 }

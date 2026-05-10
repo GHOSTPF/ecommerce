@@ -18,12 +18,15 @@ class CartController extends Controller
             $sessionId = session()->getId();
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
         }
+        $cart->load('items.product.images');
         return $cart->load('items.product.images');
     }
 
     public function index()
     {
         $cart = $this->getCart();
+        // Garante que items e product estão carregados antes dos accessors calcularem
+        $cart->load('items.product.images');
         return Inertia::render('Cart/Index', ['cart' => $cart]);
     }
 

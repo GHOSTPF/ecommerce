@@ -1,118 +1,98 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
-import { Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { useForm, Link, usePage } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { CheckCircle } from 'lucide-react';
 
-export default function UpdateProfileInformation({
-    mustVerifyEmail,
-    status,
-    className = '',
-}: {
+interface Props {
     mustVerifyEmail: boolean;
     status?: string;
     className?: string;
-}) {
-    const user = usePage().props.auth.user;
+}
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
-        useForm({
-            name: user.name,
-            email: user.email,
-        });
+export default function UpdateProfileInformationForm({ mustVerifyEmail, status }: Props) {
+    const user = usePage().props.auth.user as any;
 
-    const submit: FormEventHandler = (e) => {
+    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+        name: user.name ?? '',
+        email: user.email ?? '',
+    });
+
+    const submit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        patch(route('profile.update'));
+        patch('/profile');
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Profile Information
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Update your account's profile information and email address.
+        <div className="space-y-5">
+            <div>
+                <h2 className="text-lg font-semibold">Informações do Perfil</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                    Atualize seu nome e endereço de e-mail.
                 </p>
-            </header>
+            </div>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
-                    <TextInput
+            <form onSubmit={submit} className="space-y-4">
+                <div className="space-y-1.5">
+                    <Label htmlFor="name">Nome</Label>
+                    <Input
                         id="name"
-                        className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
+                        onChange={e => setData('name', e.target.value)}
                         autoComplete="name"
                     />
-
-                    <InputError className="mt-2" message={errors.name} />
+                    {errors.name && (
+                        <p className="text-destructive text-xs">{errors.name}</p>
+                    )}
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
+                <div className="space-y-1.5">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
                         id="email"
                         type="email"
-                        className="mt-1 block w-full"
                         value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
+                        onChange={e => setData('email', e.target.value)}
                         autoComplete="username"
                     />
-
-                    <InputError className="mt-2" message={errors.email} />
+                    {errors.email && (
+                        <p className="text-destructive text-xs">{errors.email}</p>
+                    )}
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            Your email address is unverified.
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
+                        <p>
+                            Seu e-mail não está verificado.{' '}
                             <Link
-                                href={route('verification.send')}
+                                href="/email/verification-notification"
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="underline hover:no-underline font-medium"
                             >
-                                Click here to re-send the verification email.
+                                Clique aqui para reenviar o e-mail de verificação.
                             </Link>
                         </p>
-
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
+                            <p className="mt-2 font-medium text-green-600">
+                                Um novo link de verificação foi enviado para seu e-mail.
+                            </p>
                         )}
                     </div>
                 )}
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                    <Button type="submit" disabled={processing}>
+                        Salvar Alterações
+                    </Button>
+                    {recentlySuccessful && (
+                        <span className="flex items-center gap-1.5 text-sm text-green-600">
+                            <CheckCircle className="h-4 w-4" />
+                            Salvo com sucesso!
+                        </span>
+                    )}
                 </div>
             </form>
-        </section>
+        </div>
     );
 }

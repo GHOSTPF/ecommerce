@@ -1,5 +1,5 @@
 import MainLayout from '@/Layouts/MainLayout';
-import { Link, useForm, router } from '@inertiajs/react';
+import { Link, useForm, router, Head } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -49,6 +49,8 @@ export default function CartIndex({ cart }: { cart: Cart }) {
     }
 
     return (
+        <>
+        <Head title='Carrinho'/>
         <MainLayout>
             <div className="container mx-auto px-4 py-8">
                 <h1 className="text-2xl font-bold mb-6">Carrinho ({cart.item_count} {cart.item_count === 1 ? 'item' : 'itens'})</h1>
@@ -183,5 +185,6 @@ export default function CartIndex({ cart }: { cart: Cart }) {
                 </div>
             </div>
         </MainLayout>
+        </>
     );
 }

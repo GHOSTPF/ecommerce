@@ -35,8 +35,8 @@ export default function MainLayout({ children, cartCount = 0 }: Props) {
                     <div className="flex h-16 items-center justify-between gap-4">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 font-bold text-xl shrink-0">
-                            <span className="text-primary">🛒</span>
-                            <span>MinhaLoja</span>
+                            {/* <span className="text-primary"><ShoppingCart /></span> */}
+                            <span>Logo</span>
                         </Link>
 
                         {/* Search - desktop */}

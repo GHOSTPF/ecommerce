@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Order;
-use App\Models\OrderItem;
+// use App\Models\OrderItem;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,10 +12,6 @@ use Stripe\PaymentIntent;
 
 class CheckoutController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function index()
     {

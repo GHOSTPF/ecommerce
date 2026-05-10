@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from 'lucide-react';
 import ProductCard from '@/Components/ProductCard';
+import { Head } from '@inertiajs/react';
 
 interface Product {
     id: number; name: string; slug: string; price: number; sale_price?: number;
@@ -25,6 +26,8 @@ interface Props {
 
 export default function Home({ featured, categories, newArrivals, cartCount = 0 }: Props) {
     return (
+        <>
+        <Head title="Dashboard" />
         <MainLayout cartCount={cartCount}>
             {/* Hero Banner */}
             <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/10">
@@ -41,12 +44,20 @@ export default function Home({ featured, categories, newArrivals, cartCount = 0 
                         </p>
                         <div className="flex gap-4 flex-wrap">
                             <Button size="lg" >
-                                <Link href="/produtos">
-                                    Ver Produtos <ArrowRight className="ml-2 h-4 w-4" />
+                                <Link href="/produtos" className="flex items-center">
+                                    Ver Produtos
+                                    <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
                             </Button>
+
                             <Button size="lg" variant="outline" >
-                                <Link href="/produtos?on_sale=true">Ver Promoções</Link>
+                                <Link
+                                    href="/produtos?on_sale=true"
+                                    className="flex items-center"
+                                >
+                                    Ver Promoções
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
                             </Button>
                         </div>
                     </div>
@@ -91,7 +102,7 @@ export default function Home({ featured, categories, newArrivals, cartCount = 0 
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold">Categorias</h2>
                         <Button variant="ghost">
-                            <Link href="/produtos">Ver todas <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                            <Link href="/produtos" className="flex items-center" >Ver todas <ArrowRight className="ml-1 h-4 w-4" /></Link>
                         </Button>
                     </div>
                     <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
@@ -118,7 +129,7 @@ export default function Home({ featured, categories, newArrivals, cartCount = 0 
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold">Produtos em Destaque</h2>
                         <Button variant="ghost">
-                            <Link href="/produtos?featured=true">Ver mais <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                            <Link href="/produtos?featured=true" className="flex items-center">Ver mais <ArrowRight className="ml-1 h-4 w-4" /></Link>
                         </Button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -135,7 +146,7 @@ export default function Home({ featured, categories, newArrivals, cartCount = 0 
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold">Chegou Agora</h2>
                         <Button variant="ghost">
-                            <Link href="/produtos?sort=newest">Ver tudo <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                            <Link href="/produtos?sort=newest" className="flex items-center">Ver tudo <ArrowRight className="ml-1 h-4 w-4" /></Link>
                         </Button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -157,5 +168,6 @@ export default function Home({ featured, categories, newArrivals, cartCount = 0 
                 </div>
             </section>
         </MainLayout>
+    </>
     );
 }
