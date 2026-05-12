@@ -55,43 +55,52 @@ export default function MainLayout({ children, cartCount = 0 }: Props) {
                         {/* Nav Icons */}
                         <div className="flex items-center gap-2">
                             {auth?.user ? (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger>
-                                        <Button variant="ghost" size="sm" className="gap-1">
-                                            <User className="h-4 w-4" />
-                                            <span className="hidden sm:inline truncate max-w-24">
-                                                {auth.user.name.split(' ')[0]}
-                                            </span>
-                                            <ChevronDown className="h-3 w-3" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-48">
-                                        <DropdownMenuItem>
-                                            <Link href="/profile">Meu Perfil</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <Link href="/meus-pedidos">Meus Pedidos</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <Link href="/lista-de-desejos">Lista de Desejos</Link>
-                                        </DropdownMenuItem>
-                                        {auth.user.roles?.includes('admin') && (
-                                            <>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>
-                                                    <Link href="/admin">Painel Admin</Link>
-                                                </DropdownMenuItem>
-                                            </>
-                                        )}
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem>
-                                            <Link href="/logout" method="post" as="button" className="w-full text-left text-red-600">
-                                                Sair
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            ) : (
+    <DropdownMenu>
+        <DropdownMenuTrigger >
+            <Button variant="ghost" size="sm" className="gap-2 px-2">
+                {/* ✅ Avatar do usuário no header */}
+                <img
+                    src={auth.user.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&size=32&background=random&color=fff`}
+                    alt={auth.user.name}
+                    className="w-7 h-7 rounded-full object-cover border-2 border-primary/30"
+                />
+                <span className="hidden sm:inline text-sm font-medium truncate max-w-24">
+                    {auth.user.name.split(' ')[0]}
+                </span>
+                <ChevronDown className="h-3 w-3" />
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+            <div className="px-3 py-2 border-b">
+                <p className="text-sm font-medium">{auth.user.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{auth.user.email}</p>
+            </div>
+            <DropdownMenuItem >
+                <Link href="/profile">👤 Meu Perfil</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem >
+                <Link href="/meus-pedidos">📦 Meus Pedidos</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem >
+                <Link href="/lista-de-desejos">❤️ Lista de Desejos</Link>
+            </DropdownMenuItem>
+            {auth.user.roles?.includes('admin') && (
+                <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem >
+                        <Link href="/admin">⚡ Painel Admin</Link>
+                    </DropdownMenuItem>
+                </>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem >
+                <Link href="/logout" method="post" as="button" className="w-full text-left text-red-600">
+                    🚪 Sair
+                </Link>
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+    </DropdownMenu>
+) : (
                                 <Button variant="ghost" size="sm">
                                     <Link href="/login">Entrar</Link>
                                 </Button>

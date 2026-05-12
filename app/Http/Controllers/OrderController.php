@@ -25,4 +25,22 @@ class OrderController extends Controller
 
         return Inertia::render('Orders/Show', compact('order'));
     }
+
+    public function markDelivered(Order $order)
+    {
+        abort_if($order->user_id !== auth()->id(), 403);
+
+        if ($order->status === 'delivered') {
+            return back()->with('success', 'Pedido já está marcado como entregue.');
+        }
+
+        abort_if($order->status !== 'shipped', 403, 'Só é possível marcar como entregue após o pedido ser enviado.');
+
+        $order->update([
+            'status' => 'delivered',
+            'delivered_at' => now(),
+        ]);
+
+        return back()->with('success', 'Pedido marcado como entregue. Obrigado!');
+    }
 }

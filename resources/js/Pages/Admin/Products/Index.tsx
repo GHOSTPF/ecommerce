@@ -20,7 +20,7 @@ interface Product {
 }
 
 interface Props {
-    products: { data: Product[]; links: any[]; meta: any };
+    products: { data: Product[]; links: any[]; meta: { last_page?: number; total?: number } };
     categories: { id: number; name: string }[];
 }
 
@@ -54,7 +54,7 @@ const [status, setStatus] = useState<string | null>('');
         }, { preserveScroll: true });
     };
 
-    const totalProducts = products.total;
+    const totalProducts = products.meta?.total ?? products.data.length;
     const lowStockCount = products.data.filter(
         p => p.stock_quantity <= p.low_stock_threshold && !p.deleted_at
     ).length;
@@ -255,7 +255,7 @@ const [status, setStatus] = useState<string | null>('');
                 )}
 
                 {/* Pagination */}
-                {products.meta?.last_page > 1 && (
+                {(products.meta?.last_page ?? 0) > 1 && (
                     <div className="flex justify-center gap-2 p-4 border-t flex-wrap">
                         {products.links.map((link: any, i: number) => (
                             <Button

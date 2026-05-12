@@ -15,18 +15,23 @@ class AdminOrderController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('order_number', 'ilike', "%{$request->search}%")
-                  ->orWhereHas('user', fn($uq) => $uq->where('name', 'ilike', "%{$request->search}%")
-                      ->orWhere('email', 'ilike', "%{$request->search}%"));
+                  ->orWhereHas('user', fn($uq) =>
+                      $uq->where('name', 'ilike', "%{$request->search}%")
+                         ->orWhere('email', 'ilike', "%{$request->search}%"));
             });
         }
 
-        $orders = $query->paginate(20)->withQueryString();
+        $orders         = $query->paginate(20)->withQueryString();
+        $pendingPix     = Order::where('payment_method', 'pix')->where('payment_status', 'pending')->count();
+        $pendingOrders  = Order::where('status', 'pending')->count();
 
-        return Inertia::render('Admin/Orders/Index', compact('orders'));
+        return Inertia::render('Admin/Orders/Index', compact('orders', 'pendingPix', 'pendingOrders'));
     }
 
     public function show(Order $order)
@@ -38,33 +43,40 @@ class AdminOrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled,refunded',
-            'tracking_code' => 'nullable|string',
+            'status'           => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled,refunded',
+            'tracking_code'    => 'nullable|string',
             'shipping_carrier' => 'nullable|string',
-            'admin_notes' => 'nullable|string',
+            'admin_notes'      => 'nullable|string',
         ]);
 
         $data = ['status' => $request->status];
-
-        if ($request->tracking_code) {
-            $data['tracking_code'] = $request->tracking_code;
-        }
-        if ($request->shipping_carrier) {
-            $data['shipping_carrier'] = $request->shipping_carrier;
-        }
-        if ($request->admin_notes) {
-            $data['admin_notes'] = $request->admin_notes;
-        }
+        if ($request->tracking_code)    $data['tracking_code']    = $request->tracking_code;
+        if ($request->shipping_carrier) $data['shipping_carrier'] = $request->shipping_carrier;
+        if ($request->admin_notes)      $data['admin_notes']      = $request->admin_notes;
 
         match($request->status) {
-            'shipped' => $data['shipped_at'] = now(),
+            'shipped'   => $data['shipped_at']   = now(),
             'delivered' => $data['delivered_at'] = now(),
             'cancelled' => $data['cancelled_at'] = now(),
-            default => null,
+            default     => null,
         };
 
         $order->update($data);
+        return back()->with('success', 'Status atualizado!');
+    }
 
-        return back()->with('success', 'Status do pedido atualizado!');
+    // ✅ Confirmar pagamento PIX manualmente
+    public function confirmPix(Order $order)
+    {
+        abort_if($order->payment_method !== 'pix', 400, 'Pedido não é PIX');
+        abort_if($order->payment_status === 'paid', 400, 'PIX já confirmado');
+
+        $order->update([
+            'payment_status' => 'paid',
+            'status'         => 'confirmed',
+            'paid_at'        => now(),
+        ]);
+
+        return back()->with('success', '✅ Pagamento PIX confirmado! Pedido atualizado para Confirmado.');
     }
 }

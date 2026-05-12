@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Http\Controllers\AddressController;
 
 // Home
 Route::get('/', function () {
@@ -47,10 +48,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 });
 
+// Endereço
+Route::middleware('auth')->group(function () {
+    Route::post('/enderecos', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/enderecos/{address}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::patch('/enderecos/{address}/padrao', [AddressController::class, 'setDefault'])->name('addresses.default');
+    Route::delete('/enderecos/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+});
+
 // Pedidos (requer auth)
 Route::middleware('auth')->group(function () {
     Route::get('/meus-pedidos', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/meus-pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/meus-pedidos/{order}/entregue', [OrderController::class, 'markDelivered'])->name('orders.delivered');
 });
 
 // Lista de Desejos (requer auth)
@@ -66,6 +76,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    Route::patch('orders/{order}/confirm-pix', [AdminOrderController::class, 'confirmPix'])->name('orders.confirm-pix');
     Route::resource('products', AdminProductController::class);
     Route::resource('orders', AdminOrderController::class)->only(['index', 'show']);
     Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');

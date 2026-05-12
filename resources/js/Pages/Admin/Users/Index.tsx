@@ -109,7 +109,7 @@ export default function AdminUsersIndex({ users }: Props) {
                                                     <p className="font-medium flex items-center gap-1.5">
                                                         {user.name}
                                                         {isAdmin && (
-                                                            <ShieldCheck className="h-3.5 w-3.5 text-primary" title="Administrador" />
+                                                            <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-label="Administrador" />
                                                         )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">

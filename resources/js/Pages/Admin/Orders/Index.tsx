@@ -188,11 +188,12 @@ export default function AdminOrdersIndex({ orders }: Props) {
                                         })}
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <Button variant="ghost" size="sm" >
-                                            <Link href={`/admin/orders/${order.id}`} className="gap-1 flex flex-items">
-                                                <Eye className="h-3.5 w-3.5" /> Ver
-                                            </Link>
-                                        </Button>
+                                        <Link
+                                            href={`/admin/orders/${order.id}`}
+                                            className="inline-flex items-center gap-1 rounded-lg border border-transparent bg-muted/80 px-3 py-1.5 text-sm font-medium transition hover:bg-muted"
+                                        >
+                                            <Eye className="h-3.5 w-3.5" /> Ver
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}

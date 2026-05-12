@@ -1,5 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -15,7 +15,6 @@ import {
     ChevronLeft, Package, MapPin, CreditCard,
     User, Truck, CheckCircle,
 } from 'lucide-react';
-
 interface OrderItem {
     id: number; product_name: string; product_sku?: string;
     price: number; quantity: number; subtotal: number;
@@ -25,6 +24,7 @@ interface OrderItem {
 interface Order {
     id: number; order_number: string; status: string;
     payment_status: string; payment_method?: string; payment_id?: string;
+    installments?: number; pix_qr_code_base64?: string;
     subtotal: number; tax: number; shipping: number; discount: number; total: number;
     coupon_code?: string; tracking_code?: string; shipping_carrier?: string;
     shipping_name: string; shipping_phone?: string; shipping_zipcode: string;
@@ -80,6 +80,16 @@ export default function AdminOrderShow({ order }: { order: Order }) {
         shipping_carrier: order.shipping_carrier ?? '',
         admin_notes: order.admin_notes ?? '',
     });
+
+    const installments = order.installments ?? 0;
+    const isPix = order.payment_method === 'pix';
+    const isPixPending = isPix && order.payment_status === 'pending';
+
+    const confirmPix = () => {
+        if (confirm('Confirmar recebimento do PIX? O pedido será marcado como Pago e Confirmado.')) {
+            router.patch(`/admin/orders/${order.id}/confirm-pix`);
+        }
+    };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -319,6 +329,16 @@ export default function AdminOrderShow({ order }: { order: Order }) {
                                          order.payment_method === 'boleto' ? '📄 Boleto' :
                                          order.payment_method ?? '—'}
                                     </p>
+                                    {order.payment_method === 'credit_card' && installments > 0 && (
+                                        <div className="mt-2">
+                                            <p className="text-muted-foreground text-xs">Parcelamento</p>
+                                            <p className="font-medium text-primary">
+                                                {installments > 1
+                                                    ? `${installments}x de ${fmt(order.total / installments)} sem juros`
+                                                    : `À vista — ${fmt(order.total)}`}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <p className="text-muted-foreground text-xs">Status</p>
@@ -354,7 +374,36 @@ export default function AdminOrderShow({ order }: { order: Order }) {
                         </CardContent>
                     </Card>
                 </div>
-
+                {/* ✅ Botão confirmação PIX */}
+{isPixPending && (
+    <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950 border-2 border-amber-300 rounded-xl space-y-3">
+        <div>
+            <p className="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                ⚡ PIX Aguardando Confirmação
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                Confirme apenas após verificar o recebimento no seu banco.
+            </p>
+        </div>
+        <div className="bg-white dark:bg-gray-900 p-2 rounded-lg text-center">
+            {order.pix_qr_code_base64 && (
+                <img
+                    src={order.pix_qr_code_base64}
+                    alt="QR Code PIX"
+                    className="w-32 h-32 mx-auto"
+                />
+            )}
+            <p className="text-xs text-muted-foreground mt-1">QR Code do cliente</p>
+        </div>
+        <Button
+            className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
+            onClick={confirmPix}
+        >
+            <CheckCircle className="h-4 w-4" />
+            ✅ Confirmar Recebimento do PIX
+        </Button>
+    </div>
+)}                
                 {/* Painel Admin */}
                 <div className="space-y-4">
                     <Card>
@@ -367,7 +416,7 @@ export default function AdminOrderShow({ order }: { order: Order }) {
                                     <Label>Status do Pedido</Label>
                                     <Select
                                         value={data.status}
-                                        onValueChange={v => setData('status', v)}
+                                        onValueChange={v => setData('status', v ?? '')}
                                     >
                                         <SelectTrigger>
                                             <SelectValue />
